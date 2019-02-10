@@ -8,13 +8,14 @@ import (
 	"compress/gzip"
 	"crypto/md5"
 	"fmt"
-	"github.com/blakesmith/ar"
 	"go/build"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/blakesmith/ar"
 )
 
 func createDeb(version string, tarball io.Reader, deb io.Writer) error {
@@ -48,7 +49,7 @@ const control = `
 Package: go
 Version: %s
 Architecture: %s
-Maintainer: Gustavo Niemeyer <niemeyer@canonical.com>
+Maintainer: Patrick Gaskin <patrick@pgaskin.net>
 Installed-Size: %d
 Conflicts: golang-go, golang, golang-stable, golang-tip, golang-weekly
 Replaces: golang-go
