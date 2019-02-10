@@ -1,4 +1,5 @@
 // Copyright 2013-2014 Canonical Ltd.
+// Copyright 2019 Patrick Gaskin
 
 // godeb dynamically translates stock upstream Go tarballs to deb packages.
 //
