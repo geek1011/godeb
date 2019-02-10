@@ -74,7 +74,6 @@ func run() error {
 	default:
 		return fmt.Errorf("unknown command: %s", os.Args[1])
 	}
-	return nil
 }
 
 func listCommand() error {
@@ -205,7 +204,7 @@ func tarballs() ([]*Tarball, error) {
 
 	var tbs []*Tarball
 	var err error
-	for _ = range tarballSources {
+	for range tarballSources {
 		r := <-results
 		if r.err != nil {
 			err = r.err
