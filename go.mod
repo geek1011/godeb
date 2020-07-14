@@ -1,4 +1,4 @@
-module github.com/geek1011/godeb
+module github.com/pgaskin/godeb
 
 go 1.12
 

@@ -15,7 +15,7 @@ Installation and usage
 ----------------------
 
 ```
-go get github.com/geek1011/godeb
+go get github.com/pgaskin/godeb
 ```
 
 License
