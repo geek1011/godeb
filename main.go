@@ -17,7 +17,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 	"path"
 	"sort"
 	"strings"
@@ -30,9 +29,7 @@ var usage = `Usage: godeb <command> [<options> ...]
 Available commands:
 
     list
-    install [<version>]
     download [<version>]
-    remove
 `
 
 func main() {
@@ -60,23 +57,21 @@ func run() error {
 		if len(os.Args) > 2 {
 			return fmt.Errorf("list command takes no arguments")
 		}
-		return listCommand()
-	case "download", "install":
+		return list()
+	case "download":
 		version := ""
 		if len(os.Args) == 3 {
 			version = os.Args[2]
 		} else if len(os.Args) > 3 {
 			return fmt.Errorf("too many arguments to %s command", command)
 		}
-		return actionCommand(version, command == "install")
-	case "remove":
-		return removeCommand()
+		return download(version)
 	default:
 		return fmt.Errorf("unknown command: %s", os.Args[1])
 	}
 }
 
-func listCommand() error {
+func list() error {
 	tbs, err := tarballs()
 	if err != nil {
 		return err
@@ -87,21 +82,7 @@ func listCommand() error {
 	return nil
 }
 
-func removeCommand() error {
-	args := []string{"dpkg", "--purge", "go"}
-	if os.Getuid() != 0 {
-		args = append([]string{"sudo"}, args...)
-	}
-	cmd := exec.Command(args[0], args[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("while removing go package: %v", err)
-	}
-	return nil
-}
-
-func actionCommand(version string, install bool) error {
+func download(version string) error {
 	tbs, err := tarballs()
 	if err != nil {
 		return err
@@ -124,15 +105,6 @@ func actionCommand(version string, install bool) error {
 			}
 			return fmt.Errorf("version %s not available at %s", version, strings.Join(urls, " or "))
 		}
-	}
-
-	installed, err := installedDebVersion()
-	if err == errNotInstalled {
-		// that's okay
-	} else if err != nil {
-		return err
-	} else if install && debVersion(version) == installed {
-		return fmt.Errorf("go version %s is already installed", version)
 	}
 
 	fmt.Println("processing", url)
@@ -160,18 +132,6 @@ func actionCommand(version string, install bool) error {
 	}
 	fmt.Println("package", debName, "ready")
 
-	if install {
-		args := []string{"dpkg", "-i", debName}
-		if os.Getuid() != 0 {
-			args = append([]string{"sudo"}, args...)
-		}
-		cmd := exec.Command(args[0], args[1:]...)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("while installing go package: %v", err)
-		}
-	}
 	return nil
 }
 
